@@ -15,7 +15,6 @@
 </head>
 <body class="p-4 max-w-md mx-auto pb-28">
 
-    <!-- Header -->
     <header class="flex justify-between items-center bg-[#202024] p-4 rounded-xl mb-6 border border-[#323238]">
         <div>
             <h1 class="text-xl font-bold text-[#e1e1e6]">Evandro Jr</h1>
@@ -27,21 +26,16 @@
         </div>
     </header>
 
-    <!-- TELA 1: TREINAR -->
     <div id="view-train">
-        <!-- Seletor de Treinos Manual -->
         <div class="flex gap-2 mb-6">
-            <button onclick="switchTab('A')" id="btn-tab-A" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino A</button>
-            <button onclick="switchTab('B')" id="btn-tab-B" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino B</button>
-            <button onclick="switchTab('C')" id="btn-tab-C" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino C</button>
+            <button onclick="renderizarTreino('A')" id="btn-tab-A" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino A</button>
+            <button onclick="renderizarTreino('B')" id="btn-tab-B" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino B</button>
+            <button onclick="renderizarTreino('C')" id="btn-tab-C" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino C</button>
         </div>
 
-        <!-- Lista de Exercícios -->
         <main id="exercise-list" class="space-y-3 mb-6">
-            <!-- Renderizado dinamicamente pelo JS -->
-        </main>
+            </main>
 
-        <!-- Botão de Check-in Diário -->
         <div class="p-1">
             <button id="btn-checkin" onclick="toggleDailyCheckin()" class="w-full bg-[#00875f] hover:bg-[#00b37e] text-white font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-black/40">
                 <i class="fa-regular fa-circle-check text-lg"></i>
@@ -50,28 +44,23 @@
         </div>
     </div>
 
-    <!-- TELA 2: CALENDÁRIO MENSAL -->
     <div id="view-history" class="hidden space-y-4">
         <div class="bg-[#202024] p-4 rounded-xl border border-[#323238]">
             <div class="flex justify-between items-center mb-2">
                 <h2 id="calendar-title" class="text-base font-bold text-[#e1e1e6]"><i class="fa-solid fa-calendar-days text-[#00b37e] mr-2"></i>Histórico Mensal</h2>
                 <span class="text-xs bg-[#29292e] text-[#00b37e] px-2 py-0.5 rounded-md font-mono" id="stats-counter">0/0</span>
             </div>
-            <p class="text-xs text-[#8d8d99] mb-4">Toque em um dia passado para editar ou excluir o registro de treino.</p>
+            <p class="text-xs text-[#8d8d99] mb-4">Toque num dia passado para editar ou eliminar o registo de treino.</p>
             
-            <!-- Dias da Semana Header -->
             <div class="grid grid-cols-7 gap-1.5 text-center text-[11px] font-bold text-[#8d8d99] mb-2 uppercase">
                 <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
             </div>
             
-            <!-- Grid do Calendário -->
             <div id="calendar-grid" class="grid grid-cols-7 gap-1.5">
-                <!-- Injetado dinamicamente pelo JS -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- Modal de Edição de Histórico -->
     <div id="edit-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-[#202024] border border-[#323238] rounded-2xl w-full max-w-xs p-5 shadow-2xl space-y-4">
             <div>
@@ -83,7 +72,7 @@
                     <i class="fa-solid fa-check"></i> Marcar como Treinado
                 </button>
                 <button onclick="saveModalCheckin(false)" class="w-full bg-[#f75a68]/10 hover:bg-[#f75a68]/20 text-[#f75a68] border border-[#f75a68]/30 font-bold py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 transition-colors">
-                    <i class="fa-regular fa-trash-can"></i> Limpar / Excluir Registro
+                    <i class="fa-regular fa-trash-can"></i> Limpar / Eliminar Registo
                 </button>
                 <button onclick="closeModal()" class="w-full bg-[#29292e] hover:bg-[#323238] text-[#c4c4cc] font-medium py-2 rounded-xl text-sm mt-2 transition-colors">
                     Cancelar
@@ -92,7 +81,6 @@
         </div>
     </div>
 
-    <!-- Barra de Navegação Inferior Fixa -->
     <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#202024] border-t border-[#323238] px-6 py-2 flex justify-around backdrop-blur-md">
         <button onclick="changeView('train')" id="nav-train" class="flex flex-col items-center gap-1 text-[#00b37e] text-xs font-semibold py-1">
             <i class="fa-solid fa-clipboard-list text-xl"></i>
@@ -188,10 +176,6 @@
                 content.classList.add('open');
                 icon.className = "fa-solid fa-chevron-up text-xs";
             }
-        }
-
-        function switchTab(letraTreino) {
-            renderizarTreino(letraTreino);
         }
 
         function changeView(view) {
@@ -302,7 +286,7 @@
             if (completou) {
                 btn.className = "w-full bg-[#29292e] text-[#00b37e] border border-[#00b37e] font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg";
                 icon.className = "fa-solid fa-circle-check text-lg";
-                span.innerText = "Treino de Hoje Concluído!";
+                span.innerText = "Treino de Hoje Concluido!";
             } else {
                 btn.className = "w-full bg-[#00875f] hover:bg-[#00b37e] text-white font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-black/40";
                 icon.className = "fa-regular fa-circle-check text-lg";
@@ -328,19 +312,16 @@
             let treinosFeitos = 0;
             let diasTreinoPassados = 0;
 
-            // Alinha o início do mês ao dia correto da semana (espaços vazios)
             for (let i = 0; i < primeiroDiaMes; i++) {
                 const vazio = document.createElement('div');
                 grid.appendChild(vazio);
             }
 
-            // Renderiza os blocos dos dias
             for (let dia = 1; dia <= totalDiasMes; dia++) {
                 const dataLoop = new Date(ano, mes, dia);
                 const diaSemana = dataLoop.getDay();
                 const letraTreino = obterLetraTreinoPorDia(diaSemana);
                 
-                // Formata data ISO local corrigindo timezone
                 const offset = dataLoop.getTimezoneOffset();
                 const dataLocal = new Date(dataLoop.getTime() - (offset * 60 * 1000));
                 const dataStr = dataLocal.toISOString().split('T')[0];
@@ -355,15 +336,14 @@
                 }
 
                 const diaBox = document.createElement('button');
-                diaBox.disabled = dataStr > hojeStr; // Bloqueia clique em dias futuros
+                diaBox.disabled = dataStr > hojeStr;
 
-                // Classes de estilização baseadas no estado
                 let classeEstilo = "h-12 rounded-lg flex flex-col items-center justify-center border font-mono transition-all text-xs ";
                 
                 if (completou) {
                     classeEstilo += "bg-[#00875f]/20 border-[#00b37e] text-[#00b37e] font-bold";
                 } else if (ehHoje) {
-                    classeEstilo += "bg-[#29292e] border-white text-white font-bold animate-pulse";
+                    classeEstilo += "bg-[#29292e] border-white text-white font-bold";
                 } else if (ehPassado && letraTreino !== '-') {
                     classeEstilo += "bg-[#f75a68]/10 border-[#f75a68]/40 text-[#f75a68]";
                 } else {
@@ -385,7 +365,7 @@
                 grid.appendChild(diaBox);
             }
 
-            document.getElementById('stats-counter').innerText = `${treinosFeitos}/${diasTreinoPassados} concluídos`;
+            document.getElementById('stats-counter').innerText = `${treinosFeitos}/${diasTreinoPassados} concluidos`;
         }
 
         function openModal(dataStr, dia, letraTreino) {
