@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Treino - Lion Training</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; background-color: #121214; color: #e1e1e6; }
+        .card-checkbox:checked + label { text-decoration: line-through; color: #8d8d99; }
+        .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .collapsible-content.open { max-height: 300px; }
+    </style>
+</head>
+<body class="p-4 max-w-md mx-auto pb-24">
+
+    <!-- Header -->
+    <header class="flex justify-between items-center bg-[#202024] p-4 rounded-xl mb-6 border border-[#323238]">
+        <div>
+            <h1 class="text-xl font-bold text-[#e1e1e6]">Evandro Jr</h1>
+            <p class="text-sm text-[#00b37e]"><i class="fa-solid fa-dumbbell mr-1"></i> Lion Training</p>
+        </div>
+        <div class="text-right">
+            <p id="current-date" class="text-sm font-semibold text-[#c4c4cc]"></p>
+            <p id="training-day-label" class="text-xs text-[#8d8d99] font-medium uppercase mt-1"></p>
+        </div>
+    </header>
+
+    <!-- Seletor de Treinos Manual -->
+    <div class="flex gap-2 mb-6">
+        <button onclick="switchTab('A')" id="btn-tab-A" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino A</button>
+        <button onclick="switchTab('B')" id="btn-tab-B" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino B</button>
+        <button onclick="switchTab('C')" id="btn-tab-C" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino C</button>
+    </div>
+
+    <!-- Lista de Exercícios -->
+    <main id="exercise-list" class="space-y-3">
+        <!-- Renderizado dinamicamente pelo JS -->
+    </main>
+
+    <!-- Botão de Check-in Diário -->
+    <footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-[#121214]/90 backdrop-blur-md">
+        <button id="btn-checkin" onclick="toggleDailyCheckin()" class="w-full bg-[#00875f] hover:bg-[#00b37e] text-white font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-black/40">
+            <i class="fa-regular fa-circle-check text-lg"></i>
+            <span>Concluir Treino de Hoje</span>
+        </button>
+    </footer>
+
+    <script>
+        // Mapeamento centralizado de GIFs demonstrativos
+        const linksImagens = {
+            "Mobilidade": "https://images.unsplash.com/photo-1600881333168-2ef49b341f30?w=400&auto=format&fit=crop&q=60", 
+            "Flexão de Solo": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Y0Z3Z4YW9wZHB4eTZ0Z3B4am04NDg1b3R5eXp3Ym01bndxeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE0gOGwzPbRQJxe/giphy.gif",
+            "Supino Rêto Barra + Supino Rêto Halter": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExODF4MTNyamtsM3BwZjh3bXNidm50NmY4M3U2cXg5dm9wNnd0OHM4dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE4opDIfej1uAXK/giphy.gif",
+            "Fly": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2MzBvazdwMHl3ZXA2b3BxaDd0NzhwYXcyYmlwMDZicDRhc2VnOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/d1E2vyhLFwSgM0Ni/giphy.gif",
+            "Supino Articulado": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3o0eW54amc1OG1mbnRjczA3bXozZXkxdDFuMDlydTF5Y2J0amY3ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qB7SbwskkO0W5qM/giphy.gif",
+            "Tríceps Rêto": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExczMweGszODhzam0xaHB0czV4cmc5M2o0cHB2d3oxZTN3cXNwbTFrNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o6Zt3m8s9f6Lw7zHi/giphy.gif",
+            "Puxada Frontal": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdm9wYjZ4eDFyNThwNzJ5ZzY4Y3JiaDNtcXp2bXNwaGRmbWZ4OGo5diZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qBvH1pAhtfJaiFi/giphy.gif",
+            "Remada Máquina": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmNtdjRpdTB5NmRydW0zd290b2M4cGtrdnF4YTh2dmwwcnA3bDJ3NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE1YN7aBOFPRw8E/giphy.gif",
+            "Puxada Articulada": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnN5bTNmdjB1bzAwbTV0czNhdnd5cnYwd2N4Nm1sdzV3OWxmdW41ciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE6S6v7X9F5Xy1q/giphy.gif",
+            "Remada Frontal Triângulo": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2ptamw3YThrbjFudTZoMHdzMWs0Zjhxd2Z6MTJ0NXVodmN6NjlybyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0HlCqV3wqa8iaJG8/giphy.gif",
+            "Rosca Máquina": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbzhyeDJ3ZnF0azRyMWZvd29ndDVmb3p2cjh1YXB1MzdmdG9icDJzeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE3v8SAsD5Yy9fa/giphy.gif",
+            "Tríceps Pulley": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOGxjcDNmOHR5dm44OXlqcnlsN2JrcmYwa2JreTZhbzEwbmw1MDJkOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE5896H9F0sk892/giphy.gif",
+            "Rosca Unilateral Polia": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYTN4ZmN0ajlhOHJ2Mjg1bXh3MTZ3dzF0djF1MXBlOXoxYzFvdjB2YiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE88HAn10l1N3mU/giphy.gif",
+            "Abs. Prancha": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWphdmwzYWk4ZmYwMHlsMXM1MGcyOW5tYTZ5cmtxNmQxZHh0NHJ3OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE0gOGwzPbRQJxe/giphy.gif",
+            "Cadeira Extensora": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExN3RxbXZ3YTA2cmlvN2d2M3o0NHp1ZXB3M2l6M203bWRtYWg1M2dudSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE0vTUt5wO6Mv16/giphy.gif",
+            "Cadeira Adutora": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNmt6YzhhOXE5dmpxMTd2MDR5Nms5ZXg0NXcybmswMnQ3cnZ6czdrZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE5g7u6yvA3Z680/giphy.gif",
+            "Cadeira Abdutora": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTI1dzVndDcyOXB6MnM2Z3VxbmlrZmZkMnAwbDRxOWxqdmlhdTFvZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE9E0Uu0E3xV2Wc/giphy.gif",
+            "Leg 180": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXZ6M2MxbDNudDFrN2g0Z3pjaDk2bXpxamx6ZHkxeXBmdThoMXg2NSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE2v8SAsD5Yy9fa/giphy.gif",
+            "Cadeira Flexora": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmN2bmZ3OGphZnd4ajgyMDF5Mjd2YW9mdmRzNmIxeDFnczQ0NWsyMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE1O0V1V8I3MmxO/giphy.gif",
+            "Panturrilha": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNml6dm1tY3E1ZWgyM2wyeTV4bmVsbzlyNjJkMXhxNms4bXdrNHZydCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE70T6V8B16Z8lK/giphy.gif",
+            "Desenvolvimento Máquina": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmRwY3QzdzU1Zm55bnloMnBmdDF3eWhsZzdzOHg3NXJ6ODFubXQybyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE4M9N17M79xO7u/giphy.gif",
+            "Remada Alta Barra": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHUyd210bm81ZmtnaXRwcmwwYnM3dWQzOGFpdnNpMGpsbTh2cnpqMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE5896H9F0sk892/giphy.gif",
+            "Elevação Lateral Unilateral": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZnp4NzN6a25ndGttZnZ1MndwN2VibTFscDRqMXo4Z3p5bTFydmJndyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE8wH1f10oX2oAE/giphy.gif"
+        };
+
+        const treinos = {
+            'A': { nome: "Peito, Tríceps & Mobilidade", dias: "Segunda e Quinta", exercicios: [
+                { nome: "Mobilidade", series: "1", reps: "Livre" },
+                { nome: "Flexão de Solo", series: "3", reps: "12" },
+                { nome: "Supino Rêto Barra + Supino Rêto Halter", series: "3", reps: "12" },
+                { nome: "Fly", series: "3", reps: "12" },
+                { nome: "Supino Articulado", series: "3", reps: "12" },
+                { nome: "Tríceps Rêto", series: "3", reps: "12" }
+            ]},
+            'B': { nome: "Costas, Bíceps & Abdômen", dias: "Terça e Sexta", exercicios: [
+                { nome: "Mobilidade", series: "1", reps: "Livre" },
+                { nome: "Puxada Frontal", series: "3", reps: "12" },
+                { nome: "Remada Máquina", series: "3", reps: "12" },
+                { nome: "Puxada Articulada", series: "3", reps: "12" },
+                { nome: "Remada Frontal Triângulo", series: "3", reps: "12" },
+                { nome: "Rosca Máquina", series: "3", reps: "12" },
+                { nome: "Tríceps Pulley", series: "3", reps: "12" },
+                { nome: "Rosca Unilateral Polia", series: "3", reps: "12" },
+                { nome: "Abs. Prancha", series: "3", reps: "Isometria" }
+            ]},
+            'C': { nome: "Pernas & Ombros", dias: "Quarta e Sábado", exercicios: [
+                { nome: "Mobilidade", series: "1", reps: "Livre" },
+                { nome: "Cadeira Extensora", series: "3", reps: "12" },
+                { nome: "Cadeira Adutora", series: "3", reps: "12" },
+                { nome: "Cadeira Abdutora", series: "3", reps: "12" },
+                { nome: "Leg 180", series: "3", reps: "12" },
+                { nome: "Cadeira Flexora", series: "3", reps: "12" },
+                { nome: "Panturrilha", series: "3", reps: "12" },
+                { nome: "Desenvolvimento Máquina", series: "3", reps: "12" },
+                { nome: "Remada Alta Barra", series: "3", reps: "12" },
+                { nome: "Elevação Lateral Unilateral", series: "3", reps: "12" }
+            ]}
+        };
+
+        let abaAtual = 'A';
+
+        function obterTreinoDoDia() {
+            const diaSemana = new Date().getDay();
+            if (diaSemana === 1 || diaSemana === 4) return 'A';
+            if (diaSemana === 2 || diaSemana === 5) return 'B';
+            if (diaSemana === 3 || diaSemana === 6) return 'C';
+            return 'A';
+        }
+
+        function formatarData() {
+            const opcoes = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-BR', opcoes);
+        }
+
+        function toggleCollapse(index) {
+            const content = document.getElementById(`collapse-${index}`);
+            const icon = document.getElementById(`icon-${index}`);
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            } else {
+                content.classList.add('open');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+        }
+
+        function renderizarTreino(letraTreino) {
+            abaAtual = letraTreino;
+            const treino = treinos[letraTreino];
+            document.getElementById('training-day-label').innerText = `Treino ${letraTreino} (${treino.dias})`;
+            
+            ['A', 'B', 'C'].forEach(l => {
+                const btn = document.getElementById(`btn-tab-${l}`);
+                if (l === letraTreino) {
+                    btn.className = "flex-1 py-2 rounded-lg bg-[#00875f] text-white text-sm font-bold border border-transparent transition-colors";
+                } else {
+                    btn.className = "flex-1 py-2 rounded-lg bg-[#202024] text-[#e1e1e6] text-sm font-bold border border-[#323238] transition-colors";
+                }
+            });
+
+            const container = document.getElementById('exercise-list');
+            container.innerHTML = '';
+
+            treino.exercicios.forEach((ex, index) => {
+                const storageKey = `check_${letraTreino}_${index}`;
+                const weightKey = `weight_${letraTreino}_${index}`;
+                
+                const isChecked = localStorage.getItem(storageKey) === 'true' ? 'checked' : '';
+                const savedWeight = localStorage.getItem(weightKey) || '';
+                const imgUrl = linksImagens[ex.nome] || 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=400';
+
+                const div = document.createElement('div');
+                div.className = "bg-[#202024] rounded-xl border border-[#323238] overflow-hidden";
+                div.innerHTML = `
+                    <div class="p-4 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <input type="checkbox" id="${storageKey}" onchange="saveProgress('${storageKey}')" ${isChecked}
+                                   class="card-checkbox w-5 h-5 accent-[#00b37e] rounded bg-[#121214] border-[#323238] cursor-pointer shrink-0">
+                            <label for="${storageKey}" class="font-semibold text-sm text-[#e1e1e6] cursor-pointer truncate flex-1">${ex.nome}</label>
+                        </div>
+                        
+                        <!-- Input de Carga Otimizado para Mobile -->
+                        <div class="flex items-center gap-2 shrink-0">
+                            <input type="text" id="${weightKey}" value="${savedWeight}" oninput="saveWeight('${weightKey}')" placeholder="Carga" 
+                                   class="w-16 bg-[#121214] text-[#e1e1e6] text-xs font-mono px-1.5 py-1 rounded border border-[#323238] text-center focus:outline-none focus:border-[#00b37e]">
+                            <span class="text-xs bg-[#29292e] text-[#c4c4cc] px-2 py-1 rounded-md font-mono">${ex.series}x${ex.reps}</span>
+                            <button onclick="toggleCollapse(${index})" class="text-[#8d8d99] hover:text-[#e1e1e6] p-1">
+                                <i id="icon-${index}" class="fa-solid fa-chevron-down text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="collapse-${index}" class="collapsible-content bg-[#121214]/40 border-t border-[#323238]/50">
+                        <div class="p-4 flex justify-center bg-[#121214]">
+                            <img src="${imgUrl}" alt="Execução do exercício" class="rounded-lg max-h-48 object-contain bg-black w-full" loading="lazy">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            verificarCheckinDiario();
+        }
+
+        function switchTab(letraTreino) {
+            renderizarTreino(letraTreino);
+        }
+
+        function saveProgress(key) {
+            const checkbox = document.getElementById(key);
+            localStorage.setItem(key, checkbox.checked);
+        }
+
+        function saveWeight(key) {
+            const input = document.getElementById(key);
+            localStorage.setItem(key, input.value);
+        }
+
+        function obterChaveCheckinDiario() {
+            const hoje = new Date().toISOString().split('T')[0];
+            return `checkin_diario_${hoje}`;
+        }
+
+        function toggleDailyCheckin() {
+            const chave = obterChaveCheckinDiario();
+            const completou = localStorage.getItem(chave) === 'true';
+            
+            if (!completou) {
+                localStorage.setItem(chave, 'true');
+                alert('Excelente! Treino concluído e salvo no histórico. Mantenha o foco!');
+            } else {
+                localStorage.removeItem(chave);
+            }
+            verificarCheckinDiario();
+        }
+
+        function verificarCheckinDiario() {
+            const btn = document.getElementById('btn-checkin');
+            const icon = btn.querySelector('i');
+            const span = btn.querySelector('span');
+            const completou = localStorage.getItem(obterChaveCheckinDiario()) === 'true';
+
+            if (completou) {
+                btn.className = "w-full bg-[#29292e] text-[#00b37e] border border-[#00b37e] font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg";
+                icon.className = "fa-solid fa-circle-check text-lg";
+                span.innerText = "Treino de Hoje Concluído!";
+            } else {
+                btn.className = "w-full bg-[#00875f] hover:bg-[#00b37e] text-white font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-lg shadow-black/40";
+                icon.className = "fa-regular fa-circle-check text-lg";
+                span.innerText = "Concluir Treino de Hoje";
+            }
+        }
+
+        window.onload = () => {
+            formatarData();
+            const treinoDoDia = obterTreinoDoDia();
+            renderizarTreino(treinoDoDia);
+        };
+    </script>
+</body>
+</html>
