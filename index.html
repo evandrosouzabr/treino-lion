@@ -28,9 +28,9 @@
 
     <div id="view-train">
         <div class="flex gap-2 mb-6">
-            <button onclick="renderizarTreino('A')" id="btn-tab-A" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino A</button>
-            <button onclick="renderizarTreino('B')" id="btn-tab-B" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino B</button>
-            <button onclick="renderizarTreino('C')" id="btn-tab-C" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino C</button>
+            <button onclick="switchTab('A')" id="btn-tab-A" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino A</button>
+            <button onclick="switchTab('B')" id="btn-tab-B" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino B</button>
+            <button onclick="switchTab('C')" id="btn-tab-C" class="flex-1 py-2 rounded-lg bg-[#202024] text-sm font-bold border border-[#323238] transition-colors">Treino C</button>
         </div>
 
         <main id="exercise-list" class="space-y-3 mb-6">
@@ -93,41 +93,47 @@
     </nav>
 
     <script>
+        // Mapeamento atualizado com imagens estáveis de alta definição
         const linksImagens = {
-            "Mobilidade": "https://images.unsplash.com/photo-1600881333168-2ef49b341f30?w=400&auto=format&fit=crop&q=60", 
-            "Flexão de Solo": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Y0Z3Z4YW9wZHB4eTZ0Z3B4am04NDg1b3R5eXp3Ym01bndxeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE0gOGwzPbRQJxe/giphy.gif",
-            "Supino Rêto Barra + Supino Rêto Halter": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExODF4MTNyamtsM3BwZjh3bXNidm50NmY4M3U2cXg5dm9wNnd0OHM4dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE4opDIfej1uAXK/giphy.gif",
-            "Fly": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJ2MzBvazdwMHl3ZXA2b3BxaDd0NzhwYXcyYmlwMDZicDRhc2VnOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/d1E2vyhLFwSgM0Ni/giphy.gif",
-            "Supino Articulado": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3o0eW54amc1OG1mbnRjczA3bXozZXkxdDFuMDlydTF5Y2J0amY3ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qB7SbwskkO0W5qM/giphy.gif",
-            "Supino Inclinado Articulado": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3o0eW54amc1OG1mbnRjczA3bXozZXkxdDFuMDlydTF5Y2J0amY3ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qB7SbwskkO0W5qM/giphy.gif",
-            "Tríceps Rêto": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExczMweGszODhzam0xaHB0czV4cmc5M2o0cHB2d3oxZTN3cXNwbTFrNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o6Zt3m8s9f6Lw7zHi/giphy.gif",
-            "Tríceps Testa": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOGxjcDNmOHR5dm44OXlqcnlsN2JrcmYwa2JreTZhbzEwbmw1MDJkOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE5896H9F0sk892/giphy.gif",
-            "Elevação Frontal": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZnp4NzN6a25ndGttZnZ1MndwN2VibTFscDRqMXo4Z3p5bTFydmJndyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE8wH1f10oX2oAE/giphy.gif",
-            "Puxada Frontal": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdm9wYjZ4eDFyNThwNzJ5ZzY4Y3JiaDNtcXp2bXNwaGRmbWZ4OGo5diZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qBvH1pAhtfJaiFi/giphy.gif",
-            "Remada Máquina": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmNtdjRpdTB5NmRydW0zd290b2M4cGtrdnF4YTh2dmwwcnA3bDJ3NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE1YN7aBOFPRw8E/giphy.gif",
-            "Puxada Articulada": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnN5bTNmdjB1bzAwbTV0czNhdnd5cnYwd2N4Nm1sdzV3OWxmdW41ciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE6S6v7X9F5Xy1q/giphy.gif",
-            "Remada Frontal Triângulo": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExd2ptamw3YThrbjFudTZoMHdzMWs0Zjhxd2Z6MTJ0NXVodmN6NjlybyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0HlCqV3wqa8iaJG8/giphy.gif",
-            "Rosca Máquina": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbzhyeDJ3ZnF0azRyMWZvd29ndDVmb3p2cjh1YXB1MzdmdG9icDJzeSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE3v8SAsD5Yy9fa/giphy.gif",
-            "Tríceps Pulley": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOGxjcDNmOHR5dm44OXlqcnlsN2JrcmYwa2JreTZhbzEwbmw1MDJkOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE5896H9F0sk892/giphy.gif",
-            "Rosca Unilateral Polia": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYTN4ZmN0ajlhOHJ2Mjg1bXh3MTZ3dzF0djF1MXBlOXoxYzFvdjB2YiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE88HAn10l1N3mU/giphy.gif",
-            "Abs. Prancha": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWphdmwzYWk4ZmYwMHlsMXM1MGcyOW5tYTZ5cmtxNmQxZHh0NHJ3OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE0gOGwzPbRQJxe/giphy.gif",
-            "Cadeira Extensora": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExN3RxbXZ3YTA2cmlvN2d2M3o0NHp1ZXB3M2l6M203bWRtYWg1M2dudSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE0vTUt5wO6Mv16/giphy.gif",
-            "Cadeira Adutora": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNmt6YzhhOXE5dmpxMTd2MDR5Nms5ZXg0NXcybmswMnQ3cnZ6czdrZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE5g7u6yvA3Z680/giphy.gif",
-            "Cadeira Abdutora": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTI1dzVndDcyOXB6MnM2Z3VxbmlrZmZkMnAwbDRxOWxqdmlhdTFvZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE9E0Uu0E3xV2Wc/giphy.gif",
-            "Leg 180": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXZ6M2MxbDNudDFrN2g0Z3pjaDk2bXpxamx6ZHkxeXBmdThoMXg2NSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE2v8SAsD5Yy9fa/giphy.gif",
-            "Cadeira Flexora": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdmN2bmZ3OGphZnd4ajgyMDF5Mjd2YW9mdmRzNmIxeDFnczQ0NWsyMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE1O0V1V8I3MmxO/giphy.gif",
-            "Panturrilha": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNml6dm1tY3E1ZWgyM2wyeTV4bmVsbzlyNjJkMXhxNms4bXdrNHZydCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE70T6V8B16Z8lK/giphy.gif",
-            "Desenvolvimento Máquina": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmRwY3QzdzU1Zm55bnloMnBmdDF3eWhsZzdzOHg3NXJ6ODFubXQybyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE4M9N17M79xO7u/giphy.gif",
-            "Remada Alta Barra": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHUyd210bm81ZmtnaXRwcmwwYnM3dWQzOGFpdnNpMGpsbTh2cnpqMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE5896H9F0sk892/giphy.gif",
-            "Elevação Lateral Unilateral": "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZnp4NzN6a25ndGttZnZ1MndwN2VibTFscDRqMXo4Z3p5bTFydmJndyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7qE8wH1f10oX2oAE/giphy.gif"
+            "Mobilidade": "https://images.unsplash.com/photo-1600881333168-2ef49b341f30?w=500&q=80", 
+            "Flexão de Solo": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=500&q=80",
+            "Supino Rêto Barra + Supino Rêto Halter": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500&q=80",
+            "Fly": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=500&q=80",
+            "Supino Articulado": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500&q=80",
+            "Supino Inclinado Articulado": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=500&q=80",
+            "Tríceps Rêto": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&q=80",
+            "Tríceps Testa": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&q=80",
+            "Elevação Frontal": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=500&q=80",
+            "Puxada Frontal": "https://images.unsplash.com/photo-1605296867304-46d5465a25f1?w=500&q=80",
+            "Remada Máquina": "https://images.unsplash.com/photo-1605296867304-46d5465a25f1?w=500&q=80",
+            "Puxada Articulada": "https://images.unsplash.com/photo-1605296867304-46d5465a25f1?w=500&q=80",
+            "Remada Frontal Triângulo": "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=500&q=80",
+            "Rosca Máquina": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=500&q=80",
+            "Tríceps Pulley": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&q=80",
+            "Rosca Unilateral Polia": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=500&q=80",
+            "Abs. Prancha": "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=500&q=80",
+            "Cadeira Extensora": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500&q=80",
+            "Cadeira Adutora": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500&q=80",
+            "Cadeira Abdutora": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500&q=80",
+            "Leg 180": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500&q=80",
+            "Cadeira Flexora": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500&q=80",
+            "Panturrilha": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=500&q=80",
+            "Desenvolvimento Máquina": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=500&q=80",
+            "Remada Alta Barra": "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=500&q=80",
+            "Elevação Lateral Unilateral": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=500&q=80"
         };
 
         const treinos = {
             'A': { nome: "Peito, Tríceps & Mobilidade", dias: "Segunda e Quinta", exercicios: [
-                { nome: "Mobilidade", series: "1", reps: "Livre" }, { nome: "Flexão de Solo", series: "3", reps: "12" },
-                { nome: "Supino Rêto Barra + Supino Rêto Halter", series: "3", reps: "12" }, { nome: "Fly", series: "3", reps: "12" },
-                { nome: "Supino Articulado", series: "3", reps: "12" }, { nome: "Supino Inclinado Articulado", series: "3", reps: "12" }, 
-                { nome: "Tríceps Rêto", series: "3", reps: "12" }, { nome: "Tríceps Testa", series: "3", reps: "12" }, { nome: "Elevação Frontal", series: "3", reps: "12" }
+                { nome: "Mobilidade", series: "1", reps: "Livre" }, 
+                { nome: "Flexão de Solo", series: "3", reps: "12" },
+                { nome: "Supino Rêto Barra + Supino Rêto Halter", series: "3", reps: "12" }, 
+                { nome: "Fly", series: "3", reps: "12" },
+                { nome: "Supino Articulado", series: "3", reps: "12" }, 
+                { nome: "Supino Inclinado Articulado", series: "3", reps: "12" }, 
+                { nome: "Tríceps Rêto", series: "3", reps: "12" },
+                { nome: "Tríceps Testa", series: "3", reps: "12" },
+                { nome: "Elevação Frontal", series: "3", reps: "12" }
             ]},
             'B': { nome: "Costas, Bíceps & Abdômen", dias: "Terça e Sexta", exercicios: [
                 { nome: "Mobilidade", series: "1", reps: "Livre" }, { nome: "Puxada Frontal", series: "3", reps: "12" },
@@ -152,7 +158,7 @@
             if (diaSemana === 1 || diaSemana === 4) return 'A';
             if (diaSemana === 2 || diaSemana === 5) return 'B';
             if (diaSemana === 3 || diaSemana === 6) return 'C';
-            return '-'; // Domingo
+            return '-'; 
         }
 
         function obterTreinoDoDia() {
@@ -176,6 +182,10 @@
                 content.classList.add('open');
                 icon.className = "fa-solid fa-chevron-up text-xs";
             }
+        }
+
+        function switchTab(letraTreino) {
+            renderizarTreino(letraTreino);
         }
 
         function changeView(view) {
@@ -399,7 +409,7 @@
         window.onload = () => {
             formatarData();
             const treinoDoDia = obterTreinoDoDia();
-            renderizarTreino(treinoDoDia);
+            renderizarTreino(letraTreino);
         };
     </script>
 </body>
